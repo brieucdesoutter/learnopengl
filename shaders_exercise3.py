@@ -1,9 +1,9 @@
 import glfw
 from OpenGL import GL
-from OpenGL.arrays import vbo
 import numpy as np
 import ctypes
 from ctypes import c_void_p
+
 
 def resize(window, width, height):
     print(f"Resizing to {width}x{height}...")
