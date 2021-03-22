@@ -1,4 +1,3 @@
-import PIL
 import glfw
 from OpenGL import GL
 import numpy as np
@@ -6,18 +5,13 @@ import ctypes
 from PIL import Image
 
 
-def resize(window, width, height):
-    print(f"Resizing to {width}x{height}...")
-    GL.glViewport(0, 0, width, height)
+vao = 0
+texture1 = 0
+shader_program = 0
 
 
-def process_input(window):
-    if glfw.get_key(window, glfw.KEY_ESCAPE) == glfw.PRESS:
-        glfw.set_window_should_close(window, True)
-
-
-def render(window):
-    # Render here
+def initialize(window, width, height):
+    print(_opengl_info())
     vertices = np.array([
         0.5, 0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0,  # top right
         0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0,  # bottom right
@@ -27,6 +21,7 @@ def render(window):
 
     indices = np.array([0, 1, 3, 1, 2, 3], dtype=np.uint32)
 
+    global vao
     vao = GL.glGenVertexArrays(1)
     GL.glBindVertexArray(vao)
 
@@ -48,8 +43,12 @@ def render(window):
     GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, ebo)
     GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices, GL.GL_STATIC_DRAW)
 
-    texture = GL.glGenTextures(1)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, texture)
+    GL.glBindVertexArray(0)
+
+    global texture1
+    texture1 = GL.glGenTextures(1)
+    GL.glActiveTexture(GL.GL_TEXTURE0)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, texture1)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
@@ -102,6 +101,7 @@ void main() {
     if not status:
         print(GL.glGetShaderInfoLog(vertex_shader, 512, None))
 
+    global shader_program
     shader_program = GL.glCreateProgram()
     GL.glAttachShader(shader_program, vertex_shader)
     GL.glAttachShader(shader_program, fragment_shader)
@@ -110,10 +110,25 @@ void main() {
     GL.glDeleteShader(vertex_shader)
     GL.glDeleteShader(fragment_shader)
 
+
+def resize(window, width, height):
+    GL.glViewport(0, 0, width, height)
+
+
+def process_input(window):
+    if glfw.get_key(window, glfw.KEY_ESCAPE) == glfw.PRESS:
+        glfw.set_window_should_close(window, True)
+
+
+def render(window):
+    # Render here
     GL.glClearColor(0.6, 0.6, 0.6, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     GL.glUseProgram(shader_program)
+    GL.glActiveTexture(GL.GL_TEXTURE0)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, texture1)
+    GL.glBindVertexArray(vao)
     GL.glDrawElements(GL.GL_TRIANGLES, 6, GL.GL_UNSIGNED_INT, None)
     GL.glBindVertexArray(0)
 
@@ -143,12 +158,9 @@ def main():
         return
 
     glfw.set_window_size_callback(window, resize)
-    
     glfw.make_context_current(window)
 
-    print(_opengl_info())
-
-    GL.glViewport(0, 0, w, h)
+    initialize(window, w, h)
 
     while not glfw.window_should_close(window):
         process_input(window)
