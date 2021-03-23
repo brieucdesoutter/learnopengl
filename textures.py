@@ -4,6 +4,7 @@ import numpy as np
 import ctypes
 from PIL import Image
 
+from shader import Shader, ShaderProgram
 
 vao = 0
 texture1 = 0
@@ -61,54 +62,10 @@ def initialize(window, width, height):
     GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB, width, height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, tex_bytes)
     GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
 
-    vertex_shader_src = """#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec2 aTexCoord;
-
-out vec3 ourColor;
-out vec2 texCoord;
-
-void main() {
-    gl_Position = vec4(aPos, 1.0);
-    ourColor = aColor;
-    texCoord = aTexCoord;
-}
-"""
-
-    vertex_shader = GL.glCreateShader(GL.GL_VERTEX_SHADER)
-    GL.glShaderSource(vertex_shader, vertex_shader_src, None)
-    GL.glCompileShader(vertex_shader)
-    status = GL.glGetShaderiv(vertex_shader, GL.GL_COMPILE_STATUS)
-    if not status:
-        print(GL.glGetShaderInfoLog(vertex_shader, 512, None))
-
-    fragment_shader_src = """#version 330 core
-uniform sampler2D ourTexture;
-
-in vec3 ourColor;
-in vec2 texCoord;
-
-out vec4 FragColor;
-void main() {
-    FragColor = texture(ourTexture, texCoord) * vec4(ourColor, 1.0);
-}"""
-
-    fragment_shader = GL.glCreateShader(GL.GL_FRAGMENT_SHADER)
-    GL.glShaderSource(fragment_shader, fragment_shader_src, None)
-    GL.glCompileShader(fragment_shader)
-    status = GL.glGetShaderiv(vertex_shader, GL.GL_COMPILE_STATUS)
-    if not status:
-        print(GL.glGetShaderInfoLog(vertex_shader, 512, None))
-
     global shader_program
-    shader_program = GL.glCreateProgram()
-    GL.glAttachShader(shader_program, vertex_shader)
-    GL.glAttachShader(shader_program, fragment_shader)
-    GL.glLinkProgram(shader_program)
-
-    GL.glDeleteShader(vertex_shader)
-    GL.glDeleteShader(fragment_shader)
+    vertex_shader = Shader(GL.GL_VERTEX_SHADER, "textures_vertex_shader.glsl")
+    fragment_shader = Shader(GL.GL_FRAGMENT_SHADER, "textures_fragment_shader.glsl")
+    shader_program = ShaderProgram([vertex_shader, fragment_shader])
 
 
 def resize(window, width, height):
@@ -125,7 +82,7 @@ def render(window):
     GL.glClearColor(0.6, 0.6, 0.6, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-    GL.glUseProgram(shader_program)
+    shader_program.use()
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture1)
     GL.glBindVertexArray(vao)
@@ -168,6 +125,7 @@ def main():
         glfw.swap_buffers(window)
         glfw.poll_events()
 
+    glfw.destroy_window(window)
     glfw.terminate()
 
 
