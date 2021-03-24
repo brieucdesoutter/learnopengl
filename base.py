@@ -1,26 +1,27 @@
 import glfw
-from OpenGL import GL as gl
+from OpenGL import GL as GL
 
 
-def resize(window, width, height):
-    print(f"Resizing to {width}x{height}...")
-    gl.glViewport(0, 0, width, height)
+def error(err, desc):
+    print(f"Error({err}: {desc}")
 
 
-def process_input(window):
-    if glfw.get_key(window, glfw.KEY_ESCAPE) == glfw.PRESS:
+def process_key(window, key, scancode, action, mods):
+    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def render(window):
     # Render here
-    gl.glClearColor(0.6, 0.6, 0.6, 1.0)
-    gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+    pass
 
 
 def main():
+
+    glfw.set_error_callback(error)
+
     if not glfw.init():
-        return
+        exit(1)
 
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
@@ -31,16 +32,21 @@ def main():
     window = glfw.create_window(w, h, "Learn Modern OpenGL", None, None)
     if not window:
         glfw.terminate()
-        return
+        exit(1)
 
-    gl.glViewport(0, 0, w, h)
-    glfw.set_window_size_callback(window, resize)
-    
+    glfw.set_key_callback(window, process_key)
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
 
     while not glfw.window_should_close(window):
-        process_input(window)
+
+        width, height = glfw.get_framebuffer_size(window)
+        GL.glViewport(0, 0, width, height)
+        GL.glClearColor(0.6, 0.6, 0.6, 1.0)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
         render(window)
+
         glfw.swap_buffers(window)
         glfw.poll_events()
 

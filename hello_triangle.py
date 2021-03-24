@@ -4,21 +4,17 @@ import numpy as np
 import ctypes
 
 
-def resize(window, width, height):
-    print(f"Resizing to {width}x{height}...")
-    GL.glViewport(0, 0, width, height)
+def error(err, desc):
+    print(f"Error({err}: {desc}")
 
 
-def process_input(window):
-    if glfw.get_key(window, glfw.KEY_ESCAPE) == glfw.PRESS:
+def process_key(window, key, scancode, action, mods):
+    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
 
 
 def render(window):
     # Render here
-    GL.glClearColor(0.6, 0.6, 0.6, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-
     vertices = np.array([-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0], dtype=np.float32)
 
     vao = GL.glGenVertexArrays(1)
@@ -72,33 +68,34 @@ def _opengl_info():
 
 
 def main():
-
+    glfw.set_error_callback(error)
 
     if not glfw.init():
-        return
+        exit(1)
 
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
     glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
     glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
-    
+
     w, h = (800, 600)
     window = glfw.create_window(w, h, "Learn Modern OpenGL", None, None)
     if not window:
         glfw.terminate()
-        return
+        exit(1)
 
-    glfw.set_window_size_callback(window, resize)
-    
+    glfw.set_key_callback(window, process_key)
     glfw.make_context_current(window)
-
-    print(_opengl_info())
-
-    GL.glViewport(0, 0, w, h)
+    glfw.swap_interval(1)
 
     while not glfw.window_should_close(window):
-        process_input(window)
+        width, height = glfw.get_framebuffer_size(window)
+        GL.glViewport(0, 0, width, height)
+        GL.glClearColor(0.6, 0.6, 0.6, 1.0)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
         render(window)
+
         glfw.swap_buffers(window)
         glfw.poll_events()
 
