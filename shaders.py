@@ -1,6 +1,5 @@
 import glfw
 from OpenGL import GL
-from OpenGL.arrays import vbo
 import numpy as np
 import ctypes
 from ctypes import c_void_p
@@ -9,13 +8,14 @@ from base import OpenGLApp
 from gl_shaders import Shader, ShaderProgram
 
 
-class ShadersEx2(OpenGLApp):
+class ShadersApp(OpenGLApp):
     def __init__(self):
-        super().__init__("Shaders Exercise 2")
+        super().__init__("Shaders")
         self._vao = 0
         self._shader_program = None
 
     def initialize(self):
+        # Render here
         vertices = np.array([
             # position       # color
             0.5, -0.5, 0.0, 1.0, 0.0, 0.0,
@@ -39,18 +39,19 @@ class ShadersEx2(OpenGLApp):
 
         GL.glBindVertexArray(0)
 
-        vertex_shader = Shader(GL.GL_VERTEX_SHADER, "shaders_src/shaders_ex2_vertex.glsl")
-        fragment_shader = Shader(GL.GL_FRAGMENT_SHADER, "shaders_src/shaders_ex1_frag.glsl")
+        vertex_shader = Shader(GL.GL_VERTEX_SHADER, "shaders_src/shaders_vertex.glsl")
+        fragment_shader = Shader(GL.GL_FRAGMENT_SHADER, "shaders_src/shaders_frag.glsl")
         self._shader_program = ShaderProgram(vertex_shader, fragment_shader)
+        vertex_shader.delete()
+        fragment_shader.delete()
 
     def render(self):
         self._shader_program.use()
-        self._shader_program.set_float4("pos_offset", 0.5, 0.0, 0.0, 0.0)
         GL.glBindVertexArray(self._vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
 
 
 if __name__ == "__main__":
-    app = ShadersEx2()
+    app = ShadersApp()
     app.run()
 
