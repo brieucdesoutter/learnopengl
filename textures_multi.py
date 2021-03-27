@@ -47,8 +47,8 @@ class MultiTexturesApp(OpenGLApp):
 
         GL.glBindVertexArray(0)
 
-        self._texture1 = Texture2D("img.png", unit=GL.GL_TEXTURE0)
-        self._texture2 = Texture2D("awesomeface.png", flip_y=True, unit=GL.GL_TEXTURE1)
+        self._texture1 = Texture2D("img.png", unit=0)
+        self._texture2 = Texture2D("awesomeface.png", flip_y=True, unit=1)
 
         vertex_shader = Shader(GL.GL_VERTEX_SHADER, "shaders_src/textures_multi_vertex.glsl")
         fragment_shader = Shader(GL.GL_FRAGMENT_SHADER, "shaders_src/textures_multi_frag.glsl")

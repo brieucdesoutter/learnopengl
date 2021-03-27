@@ -4,9 +4,9 @@ from PIL import Image
 
 
 class Texture2D:
-    def __init__(self, image_file, flip_y=False, unit=GL.GL_TEXTURE0, wrap_s=GL.GL_REPEAT, wrap_t=GL.GL_REPEAT, min_filter=GL.GL_LINEAR, max_filter=GL.GL_LINEAR, generate_mipmaps=True):
+    def __init__(self, image_file, flip_y=False, unit=0, wrap_s=GL.GL_REPEAT, wrap_t=GL.GL_REPEAT, min_filter=GL.GL_LINEAR, max_filter=GL.GL_LINEAR, generate_mipmaps=True):
         self._ID = GL.glGenTextures(1)
-        self._unit = unit
+        self._unit = GL.GL_TEXTURE0 + unit
         GL.glActiveTexture(self._unit)
         GL.glBindTexture(GL.GL_TEXTURE_2D, self._ID)
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, wrap_s)
