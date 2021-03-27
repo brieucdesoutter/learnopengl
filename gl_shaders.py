@@ -36,6 +36,9 @@ class ShaderProgram:
     def set_bool(self, name, value):
         GL.glUniform1i(GL.glGetUniformLocation(self._ID, name), value)
 
+    def set_int(self, name, value):
+        GL.glUniform1i(GL.glGetUniformLocation(self._ID, name), value)
+
     def set_float(self, name, value):
         GL.glUniform1f(GL.glGetUniformLocation(self._ID, name), value)
 
